@@ -1,6 +1,6 @@
 apiVersion: 1
 
 datasources:
-  - name: Node JS (Prometheus)
-    type: prometheus
-    url: http://host.docker.internal:9090
+  - name: Node JS (Loki)
+    type: loki
+    url: http://host.docker.internal:3100
