@@ -1,4 +1,5 @@
-const Prometheus = require("prom-client");
+const { createLogger, transports } = require("winston");
+const LokiTransport = require("winston-loki");
 const express = require("express");
 const path = require("path");
 const app = express();
@@ -9,41 +10,33 @@ app.get("/", (req, res) => {
   res.sendFile(path.resolve(path.join(__dirname, 'index.html')));
 });
 
-// Registering metrics
-const metric_histogram = new Prometheus.Histogram({
-  name: "metric_histogram",
-  help: "Some help message for the HISTOGRAM metric.",
-  labelNames: ["route"],
-  buckets: [0.1, 5, 15, 50, 100, 200, 300, 400, 500],
-});
+// Logger
+const logger = createLogger({
+  transports: [
+    new LokiTransport({
+      host: "http://localhost:3100",
+      // Only for development purposes
+      interval: 5,
+      labels: {
+        job: 'nodejs'
+      }
+    })
+  ]
+})
 
-const metric_counter = new Prometheus.Counter({
-  name: "metric_counter",
-  help: "Some help message for the COUNTER metric.",
-});
-
-const metric_gauge = new Prometheus.Gauge({
-  name: "metric_gauge",
-  help: "Some help message for the GAUGE metric.",
-  collect() {
-    this.set(Math.round(Math.random() * 500));
-  },
-});
-
-// Collecting default metrics about the process
-Prometheus.collectDefaultMetrics();
-
-// Exposing metrics
-app.get("/metrics", (req, res) => {
-  metric_counter.inc();
-  metric_gauge.set(Math.round(Math.random() * 500))
-  metric_histogram.labels("foo").observe(Math.round(Math.random() * 500));
-
-  res.set("Content-Type", Prometheus.register.contentType);
-  res.end(Prometheus.register.metrics());
-});
+// Send logs every 1 second
+setInterval(() => {
+  const level = getRandomArrayElement(['debug', 'info', 'warn', 'error']);
+  const labels = getRandomArrayElement([{ env: 'dev' }, { env: 'prod' }]);
+  const message = getRandomArrayElement(['This is just some log message...', 'Oh snap! Something went wrong.']);
+  logger[level]({ message, labels })
+}, 2000);
 
 // Start the webserver
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
+
+function getRandomArrayElement(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
