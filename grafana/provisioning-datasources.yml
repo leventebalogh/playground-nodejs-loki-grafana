@@ -1,0 +1,6 @@
+apiVersion: 1
+
+datasources:
+  - name: Node JS (Prometheus)
+    type: prometheus
+    url: http://host.docker.internal:9090
