@@ -24,7 +24,7 @@ const logger = createLogger({
   ]
 })
 
-// Send logs every 1 second
+// Send random logs repeatedly
 setInterval(() => {
   const level = getRandomArrayElement(['debug', 'info', 'warn', 'error']);
   const labels = getRandomArrayElement([{ env: 'dev' }, { env: 'prod' }]);
