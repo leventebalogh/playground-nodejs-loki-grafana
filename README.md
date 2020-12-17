@@ -22,6 +22,8 @@ them using Grafana.
 
 The logs are sent using [winston-loki](https://github.com/JaniAnttonen/winston-loki) which exposes a transform that pushes them directy to the `/loki/api/v1/push` API endpoint of Loki.
 
+---
+
 ## Start
 
 ```bash
